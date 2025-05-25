@@ -1,0 +1,254 @@
+import 'dart:collection';
+import 'dart:io';
+
+class Node<T> {
+  int key;
+  Node? left, right;
+
+  Node(this.key) : left = null, right = null;
+}
+
+class BinaryTree<T> {
+  Node? root;
+
+  BinaryTree() {
+    root = null;
+  }
+
+  // Menambahkan simpul menggunakan metode biasa (BST)
+  void _add(Node node, int key) {
+    if (key < node.key) {
+      if (node.left == null) {
+        node.left = Node(key);
+      } else {
+        _add(node.left!, key);
+      }
+    } else {
+      if (node.right == null) {
+        node.right = Node(key);
+      } else {
+        _add(node.right!, key);
+      }
+    }
+  }
+
+  // Pencarian linear
+  Node? linearSearch(Node? node, int target) {
+    if (node == null) return null;
+    if (node.key == target) {
+      return node;
+    }
+    Node? foundNode = linearSearch(node.left, target);
+    if (foundNode != null) return foundNode;
+
+    return linearSearch(node.right, target);
+  }
+
+  // Menambahkan simpul secara level order (iteratif)
+  void addLevelOrder(int key) {
+    Node newNode = Node(key);
+    if (root == null) {
+      root = newNode;
+      return;
+    }
+
+    Queue<Node> queue = Queue<Node>();
+    queue.add(root!);
+
+    while (queue.isNotEmpty) {
+      Node current = queue.removeFirst();
+
+      if (current.left == null) {
+        current.left = newNode;
+        return;
+      } else {
+        queue.add(current.left!);
+      }
+
+      if (current.right == null) {
+        current.right = newNode;
+        return;
+      } else {
+        queue.add(current.right!);
+      }
+    }
+  }
+
+  // Menambahkan simpul secara level order rekursif
+  void addLevelOrderRecursive(int key) {
+    if (root == null) {
+      root = Node(key);
+    } else {
+      _addLevelOrderRecursive(root!, key);
+    }
+  }
+
+  void _addLevelOrderRecursive(Node node, int key) {
+    if (node.left == null) {
+      node.left = Node(key);
+    } else if (node.right == null) {
+      node.right = Node(key);
+    } else {
+      _addLevelOrderRecursive(node.left!, key);
+      _addLevelOrderRecursive(node.right!, key);
+    }
+  }
+
+  // Menambahkan simpul ke node target menggunakan linear search
+  bool addToTarget(int target, int newKey) {
+    Node? targetNode = linearSearch(root, target);
+    if (targetNode == null) {
+      print('Node dengan key $target tidak ditemukan.');
+      return false;
+    }
+
+    if (targetNode.left == null) {
+      targetNode.left = Node(newKey);
+      print('Node $newKey ditambahkan sebagai anak kiri dari $target');
+      return true;
+    } else if (targetNode.right == null) {
+      targetNode.right = Node(newKey);
+      print('Node $newKey ditambahkan sebagai anak kanan dari $target');
+      return true;
+    } else {
+      print('Node dengan key $target sudah memiliki dua anak.');
+      return false;
+    }
+  }
+
+  // Traversal in-order rekursif
+  void printInOrder(Node? node) {
+    if (node != null) {
+      printInOrder(node.left);
+      stdout.write('${node.key} ');
+      printInOrder(node.right);
+    }
+  }
+
+  // Traversal pre-order rekursif
+  void printPreOrder(Node? node) {
+    if (node != null) {
+      stdout.write('${node.key} ');
+      printPreOrder(node.left);
+      printPreOrder(node.right);
+    }
+  }
+ 
+  // Traversal post-order rekursif
+  void printPostOrder(Node? node) {
+    if (node != null) {
+      printPostOrder(node.left);
+      printPostOrder(node.right);
+      stdout.write('${node.key} ');
+    }
+  }
+
+  // Traversal in-order non-rekursif
+  void printInOrderNonRecursive(Node? root) {
+    List<Node> stack = [];
+    Node? current = root;
+
+    while (stack.isNotEmpty || current != null) {
+      if (current != null) {
+        stack.add(current);
+        current = current.left;
+      } else {
+        current = stack.removeLast();
+        stdout.write('${current.key} ');
+        current = current.right;
+      }
+    }
+  }
+
+  // Traversal pre-order non-rekursif
+  void printPreOrderNonRecursive(Node? root) {
+    if (root == null) return;
+    List<Node> stack = [];
+    stack.add(root);
+
+    while (stack.isNotEmpty) {
+      Node node = stack.removeLast();
+      stdout.write('${node.key} ');
+
+      if (node.right != null) stack.add(node.right!);
+      if (node.left != null) stack.add(node.left!);
+    }
+  }
+
+  // Traversal post-order non-rekursif
+  void printPostOrderNonRecursive(Node? root) {
+    if (root == null) return;
+
+    List<Node> stack1 = [];
+    List<Node> stack2 = [];
+
+    stack1.add(root);
+
+    while (stack1.isNotEmpty) {
+      Node node = stack1.removeLast();
+      stack2.add(node);
+
+      if (node.left != null) stack1.add(node.left!);
+      if (node.right != null) stack1.add(node.right!);
+    }
+
+    while (stack2.isNotEmpty) {
+      stdout.write('${stack2.removeLast().key} ');
+    }
+  }
+}
+
+void main() {
+  BinaryTree<int> tree = BinaryTree<int>();
+
+  // Menambahkan simpul ke pohon secara level order iteratif
+  tree.addLevelOrder(1);
+  tree.addLevelOrder(2);
+  tree.addLevelOrder(3);
+  tree.addLevelOrder(4);
+  tree.addLevelOrder(5);
+  tree.addLevelOrder(6);
+  tree.addLevelOrder(7);
+
+  print('Traversal Rekursif:');
+  stdout.write('Pre-order: ');
+  tree.printPreOrder(tree.root);
+  stdout.write('\n');
+
+  stdout.write('In-order: ');
+  tree.printInOrder(tree.root);
+  stdout.write('\n');
+
+  stdout.write('Post-order: ');
+  tree.printPostOrder(tree.root);
+  stdout.write('\n');
+
+  // Menambahkan simpul dengan level order rekursif
+  stdout.write('Menambahkan simpul 8 menggunakan level order rekursif.\n');
+  tree.addLevelOrderRecursive(8);
+
+  stdout.write('Pre-order setelah tambah 8: ');
+  tree.printPreOrder(tree.root);
+  stdout.write('\n');
+
+  // Menambahkan node baru ke node target menggunakan linear search
+  stdout.write('Menambahkan simpul 9 ke node dengan key 3.\n');
+  tree.addToTarget(3, 9);
+
+  stdout.write('Pre-order setelah tambah 9 ke node 3: ');
+  tree.printPreOrder(tree.root);
+  stdout.write('\n');
+
+  print('\nTraversal Non-Rekursif:');
+  stdout.write('In-order Non-Rekursif: ');
+  tree.printInOrderNonRecursive(tree.root);
+  stdout.write('\n');
+
+  stdout.write('Pre-order Non-Rekursif: ');
+  tree.printPreOrderNonRecursive(tree.root);
+  stdout.write('\n');
+
+  stdout.write('Post-order Non-Rekursif: ');
+  tree.printPostOrderNonRecursive(tree.root);
+  stdout.write('\n');
+}
