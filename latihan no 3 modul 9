@@ -1,0 +1,113 @@
+import 'dart:io';
+
+// --- Class Node ---
+// Merepresentasikan setiap elemen dalam pohon
+class Node {
+  dynamic key; // Nilai yang disimpan dalam node
+  Node? left, right; // Referensi ke anak kiri dan kanan
+
+  Node(this.key);
+}
+
+// --- Class BinarySearchTree ---
+// Mengelola struktur pohon dan operasi-operasinya
+class BinarySearchTree {
+  Node? root; // Node paling atas dari pohon
+
+  BinarySearchTree() {
+    root = null;
+  }
+
+  // Menyisipkan node baru ke dalam BST
+  void insert(dynamic key) {
+    root = _insertRec(root, key);
+  }
+
+  Node? _insertRec(Node? node, dynamic key) {
+    if (node == null) return Node(key);
+    if (key < node.key) {
+      node.left = _insertRec(node.left, key);
+    } else if (key > node.key) {
+      node.right = _insertRec(node.right, key);
+    }
+    return node;
+  }
+
+  // Mencetak pohon secara In-Order (terurut)
+  void printInOrder() {
+    if (root == null) {
+      print("Pohon kosong.");
+      return;
+    }
+    stdout.write("Isi pohon (In-Order): ");
+    _inOrderRec(root);
+    print("");
+  }
+
+  void _inOrderRec(Node? node) {
+    if (node != null) {
+      _inOrderRec(node.left);
+      stdout.write("${node.key} ");
+      _inOrderRec(node.right);
+    }
+  }
+
+  // --- Metode copyTree ---
+  // Membuat salinan persis dari pohon biner.
+  // Menerima root dari pohon yang akan disalin.
+  // Mengembalikan root dari pohon salinan yang baru.
+  Node? copyTree(Node? t) {
+    // Jika node asli null, maka salinannya juga null.
+    if (t == null) {
+      return null;
+    }
+
+    // Buat node baru dengan kunci yang sama
+    Node newNode = Node(t.key);
+
+    // Rekursif menyalin subtree kiri dan kanan
+    newNode.left = copyTree(t.left);
+    newNode.right = copyTree(t.right);
+
+    return newNode; // Mengembalikan node baru (root dari subtree yang disalin)
+  }
+}
+
+// --- Fungsi Utama (main) untuk Menguji copyTree ---
+void main() {
+  // 1. Buat Pohon Asli
+  print("--- Membuat Pohon Asli ---");
+  BinarySearchTree originalTree = BinarySearchTree();
+  originalTree.insert(25);
+  originalTree.insert(15);
+  originalTree.insert(35);
+
+  originalTree.printInOrder();
+  print("Root pohon asli: ${originalTree.root!.key}");
+
+  // 2. Buat Salinan Pohon menggunakan copyTree
+  print("\n--- Menyalin Pohon ---");
+  BinarySearchTree copiedTree = BinarySearchTree();
+  copiedTree.root = originalTree.copyTree(originalTree.root);
+
+  // 3. Verifikasi Pohon Salinan
+  print("\n--- Verifikasi Pohon Salinan ---");
+  copiedTree.printInOrder();
+  print("Root pohon salinan: ${copiedTree.root!.key}");
+
+  // 4. Uji Deep Copy (ubah asli, lihat salinan tidak terpengaruh)
+  print("\n--- Mengubah Pohon Asli dan Memeriksa Salinan ---");
+  print("Menghapus node 15 dari pohon asli (jika metode delete ada)...");
+  // Perhatian: Metode delete tidak disertakan dalam versi ini untuk keringkasan,
+  // namun Anda bisa menambahkan kembali jika ingin menguji penghapusan.
+  // Misalnya, Anda bisa secara manual mengubah koneksi:
+  // originalTree.root!.left = null; // Menghapus 15 jika 15 adalah anak kiri root
+  originalTree.root = Node(50); // Contoh perubahan drastis pada asli
+
+  originalTree.printInOrder(); // Pohon asli berubah
+  print("Root pohon asli setelah perubahan: ${originalTree.root!.key}");
+
+  print("Memeriksa pohon salinan (tidak boleh berubah):");
+  copiedTree.printInOrder(); // Pohon salinan harus tetap seperti awal (15 25 35)
+  print("Root pohon salinan: ${copiedTree.root!.key}");
+}
