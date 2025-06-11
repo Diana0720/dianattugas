@@ -1,0 +1,112 @@
+import 'dart:io'; // Untuk stdout.write
+
+// --- Node Class ---
+class Node {
+  dynamic key;
+  Node? left, right;
+
+  Node(this.key);
+}
+
+// --- Binary Search Tree Class ---
+class BinarySearchTree {
+  Node? root;
+
+  BinarySearchTree() {
+    root = null;
+  }
+
+  // Insert a new key into the BST
+  void insert(dynamic key) {
+    root = _insertRec(root, key);
+  }
+
+  Node? _insertRec(Node? node, dynamic key) {
+    if (node == null) return Node(key);
+    if (key < node.key) {
+      node.left = _insertRec(node.left, key);
+    } else if (key > node.key) {
+      node.right = _insertRec(node.right, key);
+    }
+    return node;
+  }
+
+  // Get the largest value in the BST
+  dynamic last() {
+    if (root == null) {
+      print("Pohon kosong. Tidak ada nilai terbesar.");
+      return null;
+    }
+    Node? current = root;
+    // Terus bergerak ke kanan selama ada anak kanan
+    while (current!.right != null) {
+      current = current.right;
+    }
+    return current.key; // Mengembalikan kunci dari node paling kanan
+  }
+
+  // Delete a key from the BST (tetap ada meskipun tidak digunakan di main ini)
+  void delete(dynamic key) {
+    root = _deleteRec(root, key);
+  }
+
+  Node? _deleteRec(Node? root, dynamic key) {
+    if (root == null) return root;
+
+    if (key < root.key) {
+      root.left = _deleteRec(root.left, key);
+    } else if (key > root.key) {
+      root.right = _deleteRec(root.right, key);
+    } else {
+      if (root.left == null) return root.right;
+      if (root.right == null) return root.left;
+
+      root.key = _minValue(root.right);
+      root.right = _deleteRec(root.right, root.key);
+    }
+    return root;
+  }
+
+  dynamic _minValue(Node? node) {
+    dynamic minv = node!.key;
+    while (node!.left != null) {
+      minv = node.left!.key;
+      node = node.left;
+    }
+    return minv;
+  }
+
+  // Print the tree in In-Order (sorted)
+  void printInOrder() {
+    if (root == null) {
+      print("Pohon kosong.");
+      return;
+    }
+    stdout.write("Isi pohon (In-Order): ");
+    _inOrderRec(root);
+    print("");
+  }
+
+  void _inOrderRec(Node? node) {
+    if (node != null) {
+      _inOrderRec(node.left);
+      stdout.write("${node.key} ");
+      _inOrderRec(node.right);
+    }
+  }
+}
+
+// --- Fungsi Utama ---
+void main() {
+  BinarySearchTree bst = BinarySearchTree();
+
+  print("--- Memasukkan 3 Angka ke BST ---");
+  bst.insert(25); // Angka pertama
+  bst.insert(15); // Angka kedua
+  bst.insert(35); // Angka ketiga
+
+  bst.printInOrder(); // Tampilkan pohon (akan terurut: 15 25 35)
+
+  print("\n--- Hasil ---");
+  print("Nilai terbesar (last()): ${bst.last()}"); // Output: 35
+}
