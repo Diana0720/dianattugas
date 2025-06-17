@@ -1,0 +1,116 @@
+import 'dart:io';
+
+class Pasien {
+  String nama;
+  String poli;
+  String noAntrian;
+
+  Pasien(this.nama, this.poli, this.noAntrian);
+
+  @override
+  String toString() {
+    return '$noAntrian - $nama ($poli)';
+  }
+}
+
+class AntrianPoli {
+  String namaPoli;
+  int _counter = 1;
+  List<Pasien> daftarPasien = []; //ini adalah struktur data list menyimpan antrian pasien
+
+  AntrianPoli(this.namaPoli);
+
+  void tambahPasien(String nama) {
+    String kode = namaPoli[0].toUpperCase(); // ini adalahh variable dasar untuk menyimpan data dan membentuk data
+    String noAntrian = '$kode$_counter';
+    _counter++;
+
+    var pasien = Pasien(nama, namaPoli, noAntrian);
+    daftarPasien.add(pasien);
+    print('Pasien ditambahkan: $pasien');
+  }
+
+  void panggilPasien() {
+    if (daftarPasien.isEmpty) {
+      print('Tidak ada pasien di antrian $namaPoli.');
+    } else {
+      var pasien = daftarPasien.removeAt(0);
+      print('Memanggil: $pasien');
+    }
+  }
+
+  void tampilkanAntrian() {
+    print('\nPoli $namaPoli:');
+    if (daftarPasien.isEmpty) {
+      print('Kosong.');
+    } else {
+      for (var p in daftarPasien) {
+        print('- $p');
+      }
+    }
+  }
+}
+
+class SistemAntrian {
+  final Map<String, AntrianPoli> poliMap = { // ini adalah struktur data map: menyimpan key 'gigi' -> dan objek sebagai value 
+    'gigi': AntrianPoli('gigi'), //mentimpan antrian berdasarkan poli
+    'mata': AntrianPoli('mata'),
+    'rontgen': AntrianPoli('rontgen'),
+  };
+
+  void jalankan() {
+    while (true) { 
+      print('\n=== MENU ===');
+      print('1. Daftar Pasien');
+      print('2. Panggil Pasien');
+      print('3. Tampilkan Semua Antrian');
+      print('4. Keluar');
+      stdout.write('Pilihan: ');
+      var pilihan = stdin.readLineSync();
+
+      if (pilihan == '1') { 
+        stdout.write('Nama pasien: ');
+        var nama = stdin.readLineSync();
+        stdout.write('Poli (gigi/mata/rontgen): ');
+        var poli = stdin.readLineSync()?.toLowerCase();
+
+        if (nama != null && poliMap.containsKey(poli)) {
+          poliMap[poli]!.tambahPasien(nama);
+        } else {
+          print('Input salah.');
+        }
+      }
+
+      else if (pilihan == '2') {
+        stdout.write('Poli (gigi/mata/rontgen): ');
+        var poli = stdin.readLineSync()?.toLowerCase();
+
+        if (poliMap.containsKey(poli)) {
+          poliMap[poli]!.panggilPasien();
+        } else {
+          print('Poli tidak ditemukan.');
+        }
+      }
+
+      else if (pilihan == '3') {
+        for (var poli in poliMap.values) {
+          poli.tampilkanAntrian();
+        }
+      }
+
+      else if (pilihan == '4') {
+        print('Program selesai.');
+        break;
+      }
+
+      else {
+        print('Pilihan tidak valid.');
+      }
+    }
+  }
+}
+
+void main() {
+  var sistem = SistemAntrian();
+  sistem.jalankan();
+}
